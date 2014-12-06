@@ -1,12 +1,11 @@
+var baseUrl = 'https://rest.ehrscape.com/rest/v1'; //povemo kje se nahaja funkcionlanost ehrscape pplatforme
+var queryUrl = baseUrl + '/query'; 
 
-var baseUrl = 'https://rest.ehrscape.com/rest/v1';
-var queryUrl = baseUrl + '/query';
-
-var username = "ois.seminar";
+var username = "ois.seminar"; 
 var password = "ois4fri";
 
 function getSessionId() {
-    var response = $.ajax({
+    var response = $.ajax({ //ajax klic, poklicemo session povemo, kaj je nase username in passwd, v odgovor dobimo zetoncek, nek string, ki je casovno omejen-- nato vedno ko zahtevamo podatke, nastavimo ta string v header, da sterznik ve kdo smo
         type: "POST",
         url: baseUrl + "/session?username=" + encodeURIComponent(username) +
                 "&password=" + encodeURIComponent(password),
@@ -17,29 +16,29 @@ function getSessionId() {
 
 
 function kreirajEHRzaBolnika() {
-	sessionId = getSessionId();
-
+	sessionId = getSessionId(); 
+	//s knjiznico jquery preberemo vrednosti
 	var ime = $("#kreirajIme").val();
 	var priimek = $("#kreirajPriimek").val();
 	var datumRojstva = $("#kreirajDatumRojstva").val();
 
-	if (!ime || !priimek || !datumRojstva || ime.trim().length == 0 || priimek.trim().length == 0 || datumRojstva.trim().length == 0) {
+	if (!ime || !priimek || !datumRojstva || ime.trim().length == 0 || priimek.trim().length == 0 || datumRojstva.trim().length == 0) { //preverimo ce je uporabnik sploh kaj vnesel
 		$("#kreirajSporocilo").html("<span class='obvestilo label label-warning fade-in'>Prosim vnesite zahtevane podatke!</span>");
 	} else {
 		$.ajaxSetup({
-		    headers: {"Ehr-Session": sessionId}
+		    headers: {"Ehr-Session": sessionId} //uporabimo žetoncek, ki smo ga dobili, nastavimo ga v headerje(tako imamo pravico dostopati do funkcionalnosti)
 		});
 		$.ajax({
 		    url: baseUrl + "/ehr",
-		    type: 'POST',
+		    type: 'POST', //zahteva. ehrscape apiexplorer
 		    success: function (data) {
-		        var ehrId = data.ehrId;
-		        var partyData = {
+		        var ehrId = data.ehrId; //streznik vrne ID s katerim lahko dodajamo stvari na streznik
+		        var partyData = { //pripravimo podatke
 		            firstNames: ime,
 		            lastNames: priimek,
 		            dateOfBirth: datumRojstva,
 		            partyAdditionalInfo: [{key: "ehrId", value: ehrId}]
-		        };
+		        }; //ko imamo podatke klicemo demographics/party --za dan ehr id za nekega bolnika bomo dodali neke podatke
 		        $.ajax({
 		            url: baseUrl + "/demographics/party",
 		            type: 'POST',
@@ -89,9 +88,9 @@ function preberiEHRodBolnika() {
 }
 
 
-function dodajMeritveVitalnihZnakov() {
+function dodajMeritveVitalnihZnakov() { //merimo observation, ki je v obliki arhetipa
 	sessionId = getSessionId();
-
+	//arhetipi:  (za zdruzevanje arhetipov naredimo template, predlogo --> mi naredimo predlogo vitalni znaki)
 	var ehrId = $("#dodajVitalnoEHR").val();
 	var datumInUra = $("#dodajVitalnoDatumInUra").val();
 	var telesnaVisina = $("#dodajVitalnoTelesnaVisina").val();
