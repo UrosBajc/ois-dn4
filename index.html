@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	    <title>Health care</title>
+	    <title>Zdravstveni podatki</title>
 	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 	    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 	    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -18,17 +18,18 @@
 		</style>
 	</head>
 	<body>
-	    <div class="page-header"><h2>Health care<small> [EhrScape platforma]</small></h2></div>
+	    <div class="page-header"><h1>Zdravstveni podatki<small> [EhrScape platforma]</small></h1></div>
 	    <div class="row">
 	        <div class="col-lg-3 col-md-3 col-sm-3">
 	        		<div class="row">
 	 						<div class="well"> 
               	<ul class="nav nav-stacked" id="sidebar">
-                  <li><a href="#" onclick="domov()">Domov</a></li>
-                  <li><a href="#" onclick="visina()">Višina</a></li>
-                  <li><a href="#" onclick="krvniTlak()">Krvni tlak</a></li>
-                  <li><a href="#" onclick="">Teža</a></li>
-                  <li><a href="#" onclick="generirajPaciente()">Generator</a></li>
+                  <li><a href="#" onclick="domov()" class="bg-primary">Domov</a></li>
+                  <li><a href="#" onclick="visina()" class="bg-primary">Višina</a></li>
+                  <li><a href="#" onclick="teza()" class="bg-primary">Teža</a></li>
+                  <li><a href="#" onclick="krvniTlak()" class="bg-primary">Krvni tlak</a></li>
+                  <li><a href="#" onclick="pregled()" class="bg-primary">Pregled</a></li>
+                  <li><a href="#" onclick="generirajPaciente()" class="bg-primary">Generator</a></li>
               	</ul>
   						</div>
 							</div>
@@ -38,36 +39,31 @@
 								<div class="panel-heading" id="main">
 									
 								</div>
+				            <style>
+            
+				            .axis path,
+				            .axis line {
+				              fill: none;
+				              stroke: #000;
+				              shape-rendering: crispEdges;
+				            }
+				            
+				            .x.axis path {
+				              display: none;
+				            }
+				            
+				            .line {
+				              fill: none;
+				              stroke: steelblue;
+				              stroke-width: 1.5px;
+				            }
+				            
+				            </style>
+				            <script src="http://d3js.org/d3.v3.js"></script>
 							</div>
 					 </div>
 					
 			</div>
-	    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6" id="lolo">
-            <style>
-            
-            .axis path,
-            .axis line {
-              fill: none;
-              stroke: #000;
-              shape-rendering: crispEdges;
-            }
-            
-            .x.axis path {
-              display: none;
-            }
-            
-            .line {
-              fill: none;
-              stroke: steelblue;
-              stroke-width: 1.5px;
-            }
-            
-            </style>
-            <script src="http://d3js.org/d3.v3.js"></script>
-            <div id="graf"></div>
-	        </div>
-	    </div>
 	     
 	</body>
 </html>
