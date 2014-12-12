@@ -33,9 +33,7 @@ function getSessionId() {
 function napolniPaciente(){ //napolni se dropdown meni s pacienti 
     for(var i in patientIDs){
     	zahtevajEHR(i);
-        //$('#izbiraPacientov').append("<option>"+pacienti[i].firstName + ' ' + pacienti[i].lastName+"</option>");    
     }
-    
 }
 
 function zahtevajEHR(i){
@@ -57,6 +55,7 @@ function zahtevajEHR(i){
 				console.log("Bolnik '" + party.firstNames + " " + party.lastNames + "', ki se je rodil '" + party.dateOfBirth + "'."+id);
 				patientIDs[i].firstName = party.firstNames;
 				patientIDs[i].lastName = party.lastNames;
+				patientIDs[i].birthDate = party.dateOfBirth;
 			},
 			error: function(err) {
 				$("#main").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
@@ -89,7 +88,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    type: 'GET',
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
-		    	var results = "<table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Višina</th></tr>";
+		    	var results = "</div><span class='label label-info'>Tabela s podatki o višini</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Višina</th></tr>";
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var enota = "cm";
@@ -102,7 +101,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			            //console.log(datum);
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
-			            	visina : rows[i].Body_Height_Length
+			            	višina : rows[i].Body_Height_Length
 			            });
 			        }
 			        results += "</table>";
@@ -139,7 +138,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    type: 'GET',
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
-		    	var results = "<table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-left'>Sistolični</th><th class='text-right'>Diastolični</th></tr>";
+		    	var results = "</div><span class='label label-info'>Tabela s podatki krvnem tlaku</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-left'>Sistolični</th><th class='text-right'>Diastolični</th></tr>";
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var mera;
@@ -153,8 +152,8 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			            //console.log(datum);
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
-			            	sistolicni : rows[i].Systolic,
-			            	diastolicni : rows[i].Diastolic
+			            	sistolični : rows[i].Systolic,
+			            	diastolični : rows[i].Diastolic
 			            });
 			            
 			            
@@ -190,7 +189,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    type: 'GET',
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
-		    	var results = "<table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Teža</th></tr>";
+		    	var results = "</div><span class='label label-info'>Tabela s podatki o teži</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Teža</th></tr>";
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var mera;
@@ -225,46 +224,69 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
     }
 }
 
+function napisiZeIzbranega(){
+	var ime;
+	var priimek;
+	var rojstvo;
+ 	for(var i in patientIDs){
+    	if(patientIDs[i].ehrID === ehrIzbranega){
+            ime = patientIDs[i].firstName;
+            priimek = patientIDs[i].lastName;
+            rojstvo = patientIDs[i].birthDate;
+    	}
+    }
+	$("#main").append("<div id='izbran'></div>");
+	if($("#izbran").length !==0 )
+		$("#izbran").empty();
+	var index = rojstvo.indexOf('T');//spreminjanje oblike datuma
+	rojstvo = rojstvo.substring(0,index);
+   	var sporocilo = "<div class='well'><div><b><i>Trenutno izbrani pacient je:</i></b></div><div><label class=' control-label'>Ime:&#160 </label> "+ime+"</div>"+
+   					"<div><label class=' control-label'>Priimek:&#160 </label> "+priimek+"</div>"+
+   					"<div><label class=' control-label'>Datum rojstva:&#160 </label> "+rojstvo+"</div></div>";
+    $("#izbran").append(sporocilo);
+    $("#izbran").css({"font-size":"110%"});
+}
 
 
 function domov(){
 	izbranoOkno = "domov";
 	$("#main").empty();
-	$("#main").append("<h2> Pozdravljeni na spletni strani o zdravju! <h2>");
-	$("#main").append("<h4> Izberite pacienta: <h4>" + "<select class='form-control' id='izbiraPacientov'><option>-</option></select>");
+	$("#main").append("<h2> Pozdravljeni na spletni strani o zdravju! <h2><br>");
+	$("#main").append("<h4> Izberite pacienta: <h4><br>" + "<select class='form-control' id='izbiraPacientov'><option>-</option></select><br>");
 	napolniPaciente();
+	if(ehrIzbranega !== 0){
+		napisiZeIzbranega();
+	}
 	
-	
-	$('#izbiraPacientov').change(function(){
+	$('#izbiraPacientov').change(function(){ //ko se izbere pacienta
      	var pacient = $("#izbiraPacientov").val();
      	var izbran = pacient.split(" ");
     	var ime = izbran[0];
     	var priimek = izbran[1];
+    	var rojstvo;
     	
     	for(var i in patientIDs){
         	if(patientIDs[i].firstName === ime && patientIDs[i].lastName === priimek){
 	            console.log(patientIDs[i].ehrID);
 	            ehrIzbranega = patientIDs[i].ehrID;
+	            rojstvo = patientIDs[i].birthDate;
         	}
         }
     	
 		 	
         if(pacient !== "-"){
+        	var index = rojstvo.indexOf('T');//spreminjanje oblike datuma
+			rojstvo = rojstvo.substring(0,index);
+        	
         	$("#main").append("<div id='izbran'></div>");
         	if($("#izbran").length !==0 )
         		$("#izbran").empty();
-        		
-            //$("#izbran").append("<h5 class='bg-success'> </h5>");
-            
-           /* var sporocilo = "<div class='well'><span style='color:blue'>Izbrali ste pacienta: </span>"+
-            			"<p>"+pacient+"</p></div>";*/
-            			
-            			
-           	var sporocilo = "<div class='well'><div><i>Izbrali ste pacienta:</i></div><div><label class=' control-label'>Ime:&#160 </label><label class='control-label'> "+ime+"</label></div>"+
-           					"<div><label class=' control-label'>Priimek:&#160 </label><label class='control-label'> "+priimek+"</label></div></div>";
+			
+           	var sporocilo = "<div class='well'><div><b><i>Izbrali ste pacienta:</i></b></div><div><label class=' control-label'>Ime:&#160 </label>"+ime+"</div>"+
+           					"<div><label class=' control-label'>Priimek:&#160 </label> "+priimek+"</div>"+
+           					"<div><label class=' control-label'>Datum rojstva:&#160 </label> "+rojstvo+"</div></div>";
             $("#izbran").append(sporocilo);//"<p class='well'><span style='color:blue'>Izbrali ste pacienta: " + pacient + "</span></p>")
             $("#izbran").css({"font-size":"110%"});
-            console.log("dsadasd ---"+ehrIzbranega);
         }
         else
             console.log("Izbrali ste -");
@@ -274,11 +296,11 @@ function domov(){
 }
 
 function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
+	//najprej poiscemo v katero kategorijo spadata tlaka in bmi
 	var indexS = 0; 
 	for(var i in blood_pressure.systolic){
 		if(systolic > blood_pressure.systolic[i].min && systolic <= blood_pressure.systolic[i].max){
 			indexS = i;
-			//console.log(blood_pressure.systolic[i].name);
 			break;
 		}
 	}
@@ -286,8 +308,6 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	for(var i in blood_pressure.diastolic){
 		if(diastolic > blood_pressure.diastolic[i].min && diastolic <= blood_pressure.diastolic[i].max){
 			indexD = i;
-			console.log("DIA"+blood_pressure.diastolic[i].name);
-			break;
 		}
 	}
 	console.log(bmi);
@@ -295,11 +315,10 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	for(var i in blood_pressure.bmi){
 		if(bmi > blood_pressure.bmi[i].min && bmi <= blood_pressure.bmi[i].max){
 			indexB = i;
-			console.log("BMI"+blood_pressure.bmi[i].name);
 			break;
 		}
 	}
-	var problemSTlakom = false;
+	var problemSTlakom = 0;
 	var izvid;
 	//ce oba indexa 0 je kul, drugace vzemi slabso,vecjo vrednost
 	if(indexS === 0 && indexD === 0){
@@ -323,10 +342,11 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	var sklep;
 	if(problemSTlakom >=3){
 		if(indexB > 2){
-			sklep = "Zaradi močno povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga takojšnji obisk zdravnika.\nObstaja velika verjetnost za srčni infarkt, za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi močno povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
+			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za srčni infarkt, za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
 		}
 		else if(indexB > 1){
-			sklep = "Zaradi močno povečanega krvnega tlaka in malce prevelike telesne teže se predlaga obisk zdravnika, obenem pa korenita sprememba prehrambenih navad in ukvarjanje s športom.";
+			sklep = "Zaradi močno povečanega krvnega tlaka in malce prevelike telesne teže se predlaga obisk zdravnika, obenem pa <ins>korenita</ins> sprememba prehrambenih navad in ukvarjanje s športom.";
 		}
 		else if (indexB == 1){
 			sklep = "Zaradi močno povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam. Priporočen je obisk zdravnika.";
@@ -337,10 +357,11 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	}
 	else if(problemSTlakom >= 2){
 		if(indexB > 2){
-			sklep = "Zaradi povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga takojšnji obisk zdravnika.\nObstaja velika verjetnost za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
+			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
 		}
 		else if(indexB > 1){
-			sklep = "Zaradi povečanega krvnega tlaka in malce prevelike telesne teže se predlaga korenito spremeniti prehrambene navade in začeti ukvarjati se s športom. Priporočen je obisk zdravnika.";
+			sklep = "Zaradi povečanega krvnega tlaka in malce prevelike telesne teže se predlaga <ins>korenito</ins> spremeniti prehrambene navade in začeti ukvarjati se s športom. Priporočen je obisk zdravnika.";
 		}
 		else if (indexB == 1){
 			sklep = "Zaradi povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam.";
@@ -351,7 +372,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	}
 	else{
 		if(indexB > 2){
-			sklep = "Zaradi problemov s prekomerno telesno težo se predlaga obisk zdravnika.\nObstaja verjetnost za obolelost za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi problemov s prekomerno telesno težo se predlaga obisk zdravnika. Obstaja verjetnost za obolelost za boleznimi srca in ožilja, sladkorno boleznijo...";
 		}
 		else if(indexB > 1){
 			sklep = "Zaradi malce prevelike telesne teže se predlaga ukvarjanje s športom.";
@@ -363,7 +384,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 			sklep = "Zaradi premajhne telesne teže so zaželjene manjše spremembe prehrambenih navad."
 		}
 	}
-	$("#izvid").append("<div class='well'><h4><b><i>Končen sklep je:</i> </b></h4><i>"+sklep+"</i></div>");
+	$("#izvid").append("<div class='well' style='background-color:#e3e4e1'><h4><b><i>Končen sklep je:</i> </b></h4><i>"+sklep+"</i></div>");
 	$("#izvid").css({"font-size":"110%"});
 }
 
@@ -371,7 +392,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 function pregled(){
 	$("#main").empty();
 	$("#main").append("<h2>Pregled zdravstenega stanja pacienta</h2>");
-	//preveri ce je zadnji vnos tlaka nenormalen
+	//preveri kaksni so zadnji vnosi
 	sessionId =getSessionId();
    	var ehrID = ehrIzbranega;
    	
@@ -448,7 +469,7 @@ function naloziJson(){
 
 
 function narisiGraf(data){
-	$("#main").append("<div class='row' id='graf'><div>");
+	$("#main").append("</div><span class='label label-info'>Graf</span></div><div class='row' id='graf'><div>");
 	$("#graf").html( new graph(data)); //new graph()  
 
 }
@@ -470,12 +491,11 @@ function dodajVBazo(){ //se izvede v primeru da je bil kliknjen gumb Generiraj
 	for(var i in patientIDs){ //prej je bilo pacienti
 		generate(i);
 	}
-	
+	$("#main").append("<div id='loading'><h4 class='text-center'><span class='label label-warning'>Nalagam vitalne znake...</span></h4></div>");
 	//nato dodamo vitalne znake
 	
 	for(var i in prvi){
     	dodajVitalneZnake(patientIDs[0].ehrID,prvi[i]);//prej je bilo pacienti
-
     }
     
   
@@ -486,8 +506,8 @@ function dodajVBazo(){ //se izvede v primeru da je bil kliknjen gumb Generiraj
   	for(var i in tretji){
 		dodajVitalneZnake(patientIDs[2].ehrID,tretji[i]);//prej je bilo pacienti
     }
-
-	$("#main").append("<div class='row'><h5 class='text-center'>Podatki uspesno dodani!</h5></div>");
+	$("#loading").remove();
+	$("#main").append("<div class='row'><h4 class='text-center'><span class='label label-success'>Podatki uspesno dodani!</span></h4></div>");
 	napolniPaciente();
 }
 
@@ -496,52 +516,47 @@ function generate(i){
     var ime = pacienti[i].firstName;
 	var priimek = pacienti[i].lastName;
 	var datumRojstva = pacienti[i].datumRojstva;
-	console.log(ime);
 	
-	if (!ime || !priimek || !datumRojstva || ime.trim().length == 0 || priimek.trim().length == 0 || datumRojstva.trim().length == 0) { //preverimo ce je uporabnik sploh kaj vnesel
-		$("#kreirajSporocilo").html("<span class='label label-warning'>Vnesi osnovne podatke o pacientu!</span>");
-	} else {
-		$.ajaxSetup({
-		    headers: {"Ehr-Session": sessionId} //uporabimo žetoncek, ki smo ga dobili, nastavimo ga v headerje(tako imamo pravico dostopati do funkcionalnosti)
-		});
-		$.ajax({
-		    url: baseUrl + "/ehr",
-		    type: 'POST', //zahteva. ehrscape apiexplorer
-		    success: function (data) {
-		        var ehrId = data.ehrId; //streznik vrne ID s katerim lahko dodajamo stvari na streznik
-		        var partyData = { //pripravimo podatke
-		            firstNames: ime,
-		            lastNames: priimek,
-		            //gender: "MALE",
-		            dateOfBirth: datumRojstva,
-		            partyAdditionalInfo: [{key: "ehrId", value: ehrId}]
-		        }; //ko imamo podatke klicemo demographics/party --za dan ehr id za nekega bolnika bomo dodali neke podatke
-		        $.ajax({
-		            url: baseUrl + "/demographics/party",
-		            type: 'POST',
-		            contentType: 'application/json',
-		            data: JSON.stringify(partyData),
-		            success: function (party) {
-		                if (party.action == 'CREATE') {
-		                	$("#main").append("<div class='row'><h4 class='text-center'>Uspešno kreiran EHR: " + ehrId + "</h4></div>");
-		                    //$("#success").append("<span class='obvestilo label label-success fade-in'>Uspešno kreiran EHR '" + ehrId + "'.</span>");
-		                    console.log("Uspešno kreiran EHR '" + ehrId + "'.");
-		                    //$("#preberiEHRid").val(ehrId);
-		                    console.log(ime);
-		                    pacienti[i].ehrID = ehrId;
-		                    console.log("prej: "+patientIDs[i]);
-		                    patientIDs[i].ehrID = ehrId;
-		                    console.log("potem: "+patientIDs[i]);
-		                }
-		            },
-		            error: function(err) {
-		            	//$("#kreirajSporocilo").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
-		            	console.log(JSON.parse(err.responseText).userMessage);
-		            }
-		        });
-		    }
-		});
-	}
+	$.ajaxSetup({
+	    headers: {"Ehr-Session": sessionId} //uporabimo žetoncek, ki smo ga dobili, nastavimo ga v headerje(tako imamo pravico dostopati do funkcionalnosti)
+	});
+	$.ajax({
+	    url: baseUrl + "/ehr",
+	    type: 'POST', //zahteva. ehrscape apiexplorer
+	    success: function (data) {
+	        var ehrId = data.ehrId; //streznik vrne ID s katerim lahko dodajamo stvari na streznik
+	        var partyData = { //pripravimo podatke
+	            firstNames: ime,
+	            lastNames: priimek,
+	            //gender: "MALE",
+	            dateOfBirth: datumRojstva,
+	            partyAdditionalInfo: [{key: "ehrId", value: ehrId}]
+	        }; //ko imamo podatke klicemo demographics/party --za dan ehr id za nekega bolnika bomo dodali neke podatke
+	        $.ajax({
+	            url: baseUrl + "/demographics/party",
+	            type: 'POST',
+	            contentType: 'application/json',
+	            data: JSON.stringify(partyData),
+	            success: function (party) {
+	                if (party.action == 'CREATE') {
+	                	$("#main").append("<div class='row'><h4 class='text-center'><span class='label label-success'>Uspešno kreiran EHR: " + ehrId + "</span></h4></div>");
+	                    //$("#success").append("<span class='obvestilo label label-success fade-in'>Uspešno kreiran EHR '" + ehrId + "'.</span>");
+	                    console.log("Uspešno kreiran EHR '" + ehrId + "'.");
+	                    //$("#preberiEHRid").val(ehrId);
+	                    console.log(ime);
+	                    pacienti[i].ehrID = ehrId;
+	                    console.log("prej: "+patientIDs[i]);
+	                    patientIDs[i].ehrID = ehrId;
+	                    console.log("potem: "+patientIDs[i]);
+	                }
+	            },
+	            error: function(err) {
+	            	console.log(JSON.parse(err.responseText).userMessage);
+	            }
+	        });
+	    }
+	});
+
 }
 
 
@@ -591,21 +606,11 @@ function dodajVitalneZnake(ehrID,data) {
 }
 //-------------------------------------------------------------------------------
 
-
 var graph = function(data){
-	
-
-	
-	/*var margin = {top: 20, right: 80, bottom: 30, left: 50},
-	     width = 960 - margin.left - margin.right,
-	    height = 500 - margin.top - margin.bottom;*/
-	    
     var margin = {top: 30, right: 80, bottom: 30, left: 50},
 	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
 	  	height = 500 - margin.top - margin.bottom;
-	  
-	  
-	
+
 	var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
 	
 	var x = d3.time.scale()
@@ -632,17 +637,15 @@ var graph = function(data){
 	var svg = d3.select("#main").append("svg")
 	    .attr("width", width + margin.left + margin.right)
 	    .attr("height", height + margin.top + margin.bottom)
-	  .append("g")
+	  	.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
-	//var data = tretji;//[{"date":"1980-11-30T10:30","Happy":"63.4","Sad":"62.7","Angry":"72.2"},{"date":"1981-11-30T10:30","Happy":"67.4","Sad":"61.7","Angry":"52.2"},{"date":"1982-11-30T10:30","Happy":"60.4","Sad":"84.7","Angry":"44.2"}];
-	
 	function n(error, data) {
-	  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
-	
-	  data.forEach(function(d) {
-	 d.date = parseDate(d.date);
-	 console.log(d.date);
+		  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+		
+		  data.forEach(function(d) {
+		 d.date = parseDate(d.date);
+		 console.log(d.date);
 	});
 	
 	  var cities = color.domain().map(function(name) {
@@ -695,11 +698,9 @@ var graph = function(data){
 	}
 	                         
 	n([],data);
-	
-
 }
-
-/*function resize() { NALOZI VECKRAT?????
+/*
+function resize() { //NALOZI VECKRAT?????
 
 	if(izbranoOkno === "visina"){
 		$("#graf").html("");
@@ -727,9 +728,9 @@ var graph = function(data){
 //------------------zacasni podatki:---------------------------------------------
 //ehrji--- na zacetku  pridobimo imena-nafilamo dropdown, na podlagi imen lahko potem iz dropdowna dostopamo do ehrjev
 var patientIDs = [
-	{"firstName":"","lastName":"","ehrID":"5b67dd05-2844-40e4-aae0-13e587626ddc"},
-	{"firstName":"","lastName":"","ehrID":"d7951748-5103-400b-8c12-690e1ffbdf5f"},
-	{"firstName":"","lastName":"","ehrID":"e21471ca-f393-4b63-9fe1-26f7c1dd0b16"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"e9f1ce26-bfef-4229-ad18-8c1f75a40806"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"d6c639e7-21d6-447f-9928-9c3417d8d749"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"61a99c04-1741-4626-a2d8-8231ef5be676"},
 ];
 
 //---------------------------trajni podatki:--------------
