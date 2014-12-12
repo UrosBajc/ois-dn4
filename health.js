@@ -204,11 +204,8 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			            	date : (datum).toString(), 
 			            	teža : rows[i].Body_weight
 			            });			        	
-			        	
-			        	
 			        }
 			        results += "</table>";
-			       
 			        narisiGraf(dataForGraph);
 			        $("#main").append(results);
 		    	} else {
