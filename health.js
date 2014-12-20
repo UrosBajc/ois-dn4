@@ -122,7 +122,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			        $("#main").append(results);
 			       
 		    	} else {
-		    		$("#main").html("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
+		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
 		    	}
 
 		    },
@@ -173,7 +173,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			        narisiGraf(dataForGraph);
 			        $("#main").append(results);
 		    	} else {
-		    		$("#main").html("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
+		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
 		    	}
 
 		    },
@@ -218,7 +218,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			        narisiGraf(dataForGraph);
 			        $("#main").append(results);
 		    	} else {
-		    		$("#main").html("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
+		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
 		    	}
 
 		    },
@@ -230,7 +230,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
     }
 }
 
-function napisiZeIzbranega(){
+function napisiZeIzbranega(){ //ce je pacient ze izbran in kliknemo domov, se izspisejo njegovi podatki
 	var ime;
 	var priimek;
 	var rojstvo;
@@ -257,7 +257,7 @@ function napisiZeIzbranega(){
 function domov(){
 	izbranoOkno = "domov";
 	$("#main").empty();
-	$("#main").append("<h2> Pozdravljeni na spletni strani o zdravju! <h2><br>");
+	$("#main").append("<h2> Zdravstveni e-pomočnik poskrbi, da vašemu zdravju dobro se godi! <h2><br>");
 	$("#main").append("<h4> Izberite pacienta: <h4><br>" + "<select class='form-control' id='izbiraPacientov'><option>-</option></select><br>");
 	napolniPaciente();
 	if(ehrIzbranega !== 0){
@@ -351,7 +351,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	}
 	
 	$("#main").append("<div id='izvid'></div>");
-	var fin = "<div class='well'><div><label class=' control-label'><i> Na zadnjem merjenju krvnega tlaka je pacient dosegel vrednosti: </i></label></div>"+
+	var fin = "<div class='well'><div><label class=' control-label'><i> Na zadnjem merjenju krvnega tlaka je pacient dosegel naslednje vrednosti: </i></label></div>"+
 			"<div><label class=' control-label'>Sistolični tlak:&#160</label>"+systolic+" ("+enotaTlaka+") </div><div><label class=' control-label'>Diastolični tlak:&#160</label>"+diastolic+" ("+enotaTlaka+")</div>"+
 			"<div><b>Sklep:&#160<ins>"+izvid+" </ins></b></div></div>";
 	$("#izvid").append(fin);
@@ -363,52 +363,74 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	var sklep;
 	if(problemSTlakom >=3){
 		if(indexB > 2){
-			sklep = "Zaradi močno povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
-			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za srčni infarkt, za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi močno povečanega krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
+			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za srčni infarkt, za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo..."+
+			" Več informacij o možnih težavah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/diG519dFVNs?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else if(indexB > 1){
-			sklep = "Zaradi močno povečanega krvnega tlaka in malce prevelike telesne teže se predlaga obisk zdravnika, obenem pa <ins>korenita</ins> sprememba prehrambenih navad in ukvarjanje s športom.";
+			sklep = "Zaradi močno povečanega krvnega tlaka in malce prevelike telesne teže se predlaga obisk zdravnika, obenem pa <ins>korenita</ins> sprememba prehrambenih navad in ukvarjanje s športom."+
+			" Več informacij o možnih težavah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/diG519dFVNs?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else if (indexB == 1){
-			sklep = "Zaradi močno povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam. Priporočen je obisk zdravnika.";
+			sklep = "Zaradi močno povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam. Priporočen je obisk zdravnika."+
+			" Več informacij o možnih težavah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/diG519dFVNs?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else{
 			sklep = "Zaradi močno povečanega krvnega tlaka in premajhne telesne teže se predlaga obisk zdravnika, potrebna je korenita sprememba prehrambenih navad.";
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/eMVyZ6Ax-74?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 	}
 	else if(problemSTlakom >= 2){
 		if(indexB > 2){
-			sklep = "Zaradi povečenga krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
-			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi povečanega krvnega tlaka in problemov s prekomerno telesno težo se predlaga <ins>takojšnji</ins> obisk zdravnika (Zdravnika si lahko najdete "+
+			"na spletni strani <a href='http://zdravniki.org/zdravniki'>zdravniki.org</a>). Obstaja <ins>velika verjetnost</ins> za obolelostjo za boleznimi srca in ožilja, sladkorno boleznijo..."+
+			"Več informacij o možnih težavah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container'><iframe width='560' height='315' src='//www.youtube.com/embed/diG519dFVNs?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else if(indexB > 1){
-			sklep = "Zaradi povečanega krvnega tlaka in malce prevelike telesne teže se predlaga <ins>korenito</ins> spremeniti prehrambene navade in začeti ukvarjati se s športom. Priporočen je obisk zdravnika.";
+			sklep = "Zaradi povečanega krvnega tlaka in malce prevelike telesne teže se predlaga <ins>korenito</ins> spremeniti prehrambene navade in začeti ukvarjati se s športom. Priporočen je obisk zdravnika."+
+			"Več informacij o možnih rešitvah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container'><iframe width='560' height='315' src='//www.youtube.com/embed/0aNNYEUARAk' frameborder='0' allowfullscreen></iframe></div>";
+		
 		}
 		else if (indexB == 1){
-			sklep = "Zaradi povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam.";
+			sklep = "Zaradi povečanega krvnega tlaka se predlaga izogibanje stresnim situacijam."+
+			"Več informacij o možnih rešitvah si lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container'><iframe width='560' height='315' src='//www.youtube.com/embed/0aNNYEUARAk' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else{
-			sklep = "Zaradi povečanega krvnega tlaka in premajhne telesne teže je zaželjena sprememba prehrambenih navad. Priporočen je obisk zdravnika.";
+			sklep = "Zaradi povečanega krvnega tlaka in premajhne telesne teže je zaželjena sprememba prehrambenih navad. Priporočen je obisk zdravnika.  Več informacij o možnih težavah lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/eMVyZ6Ax-74?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 	}
 	else{
 		if(indexB > 2){
-			sklep = "Zaradi problemov s prekomerno telesno težo se predlaga obisk zdravnika. Obstaja verjetnost za obolelost za boleznimi srca in ožilja, sladkorno boleznijo...";
+			sklep = "Zaradi problemov s prekomerno telesno težo se predlaga obisk zdravnika. Obstaja verjetnost za obolelost za boleznimi srca in ožilja, sladkorno boleznijo... Več informacij o možnih težavah si lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container'><iframe width='560' height='315' src='//www.youtube.com/embed/h0zD1gj0pXk' frameborder='0' allowfullscreen></iframe></div>";
+			
 		}
 		else if(indexB > 1){
-			sklep = "Zaradi malce prevelike telesne teže se predlaga ukvarjanje s športom.";
+			sklep = "Zaradi malce prevelike telesne teže se predlaga ukvarjanje s športom."+
+			"Več informacij o možnih rešitvah si lahko najdete v spodnjem videu.";
+			sklep += "<div class='video-container'><iframe width='560' height='315' src='//www.youtube.com/embed/0aNNYEUARAk' frameborder='0' allowfullscreen></iframe></div>";
 		}
 		else if (indexB == 1){
-			sklep = "Pacient je zdrav kot riba!";
+			sklep = "S pacientovim zdravjem je vse v najlepšem redu!";
 		}
 		else {
-			sklep = "Zaradi premajhne telesne teže so zaželjene manjše spremembe prehrambenih navad."
+			sklep = "Zaradi premajhne telesne teže so zaželjene manjše spremembe prehrambenih navad. Več informacij o možnih težavah lahko najdete v spodnjem videu."
+			sklep += "<div class='video-container' style='width:100%'><iframe width='560' height='315' src='//www.youtube.com/embed/eMVyZ6Ax-74?rel=0' frameborder='0' allowfullscreen></iframe></div>";
 		}
 	}
 	$("#izvid").append("<div class='well' style='background-color:#e3e4e1'><h4><b><i>Končen sklep je:</i> </b></h4><i>"+sklep+"</i></div>");
 	$("#izvid").css({"font-size":"110%"});
-}
+	
 
+	
+}
 
 function pregled(){
 	izbranoOkno="pregled";
@@ -444,7 +466,7 @@ function pregled(){
 		         pregledPacienta(rows[0].Systolic, rows[0].Diastolic,rows[0].enota,rows[0].Body_Mass_Index,rows[0].bmiUnit);
 
 	    	} else {
-	    		$("#main").html("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
+	    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
 	    	}
 
 	    },
@@ -498,6 +520,7 @@ function dodajVBazo(){ //se izvede v primeru da je bil kliknjen gumb Generiraj
 }
 
 function generate(i){
+	ehrIzbranega = 0;
     sessionId = getSessionId(); 
     var ime = pacienti[i].firstName;
 	var priimek = pacienti[i].lastName;
@@ -514,7 +537,6 @@ function generate(i){
 	        var partyData = { //pripravimo podatke
 	            firstNames: ime,
 	            lastNames: priimek,
-	            //gender: "MALE",
 	            dateOfBirth: datumRojstva,
 	            partyAdditionalInfo: [{key: "ehrId", value: ehrId}]
 	        }; //ko imamo podatke klicemo demographics/party --za dan ehr id za nekega bolnika bomo dodali neke podatke
@@ -526,9 +548,7 @@ function generate(i){
 	            success: function (party) {
 	                if (party.action == 'CREATE') {
 	                	$("#main").append("<div class='row'><h4 class='text-center'><span class='label label-success'>Uspešno kreiran EHR: " + ehrId + "</span></h4></div>");
-	                    //$("#success").append("<span class='obvestilo label label-success fade-in'>Uspešno kreiran EHR '" + ehrId + "'.</span>");
 	                    console.log("Uspešno kreiran EHR '" + ehrId + "'.");
-	                    //$("#preberiEHRid").val(ehrId);
 	                    pacienti[i].ehrID = ehrId;
 	                    patientIDs[i].ehrID = ehrId;
 	                }
@@ -547,7 +567,6 @@ function dodajVitalneZnake(ehrID,data) {
 
 	sessionId = getSessionId();
 	//arhetipi:  (za zdruzevanje arhetipov naredimo template, predlogo --> mi naredimo predlogo vitalni znaki)
-	console.log(ehrID);
 	var bmi = (data.telesnaTeza/(data.telesnaVisina*data.telesnaVisina/10000));
 	console.log(bmi);
 		$.ajaxSetup({
@@ -601,7 +620,8 @@ function narisiGraf(data){
 var graph = function(data){
     var margin = {top: 30, right: 80, bottom: 30, left: 50},
 	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
-	  	height = 500 - margin.top - margin.bottom;
+	  	//height = 500 - margin.top - margin.bottom;
+	  	height = width * 2 / 3;
 
 	var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
 	
@@ -700,6 +720,7 @@ $(window).resize(function () {
 	      refresh();
 	    }, 500, "some unique string");
 	}
+
 });
 
 
