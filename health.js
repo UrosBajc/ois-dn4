@@ -19,6 +19,18 @@ function bloodPressure(date, systolic, diastolic){
 
 var izbranoOkno = "domov";
 
+
+$(document).ready(function(){
+    domov();
+  	naloziJson();
+});
+
+function naloziJson(){
+  $.getJSON( "zunanjiPodatki.js", function( json ) {
+		blood_pressure = json;
+	});	
+}
+
 function getSessionId() {
     var response = $.ajax({ //ajax klic, poklicemo session povemo, kaj je nase username in passwd, v odgovor dobimo zetoncek, nek string, ki je casovno omejen-- nato vedno ko zahtevamo podatke, nastavimo ta string v header, da sterznik ve kdo smo
         type: "POST",
@@ -65,7 +77,7 @@ function zahtevajEHR(i){
 	}	
 }
 
-function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizvedbo na ehrscape
+function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizvedbo na ehrscape --> nato se izrise graf in izpise tabela vseh podatkov
 	$("#main").empty();
 
     var dataForGraph = [];
@@ -82,7 +94,6 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			" contains COMPOSITION a"+
 			" contains OBSERVATION a_a[openEHR-EHR-OBSERVATION.height.v1]"+
 			"order by time desc";
-		console.log(AQL);
 		$.ajax({
 		    url: baseUrl + "/query?" + $.param({"aql": AQL}),
 		    type: 'GET',
@@ -93,12 +104,13 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var rows = res.resultSet;
 		    		var enota = "cm";
 			        for (var i in rows) {
-			            results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
-			            console.log(rows[i].Body_Height_Length);
+			            //results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
+			            
 			            enota = rows[i].mera;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
-			            //console.log(datum);
+			            results += "<tr><td>" + datum + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
+			            
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
 			            	višina : rows[i].Body_Height_Length
@@ -132,7 +144,6 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			" contains COMPOSITION a"+
 			" contains OBSERVATION a_a[openEHR-EHR-OBSERVATION.blood_pressure.v1]"+
 			"order by time desc";
-		console.log(AQL);
 		$.ajax({
 		    url: baseUrl + "/query?" + $.param({"aql": AQL}),
 		    type: 'GET',
@@ -143,13 +154,13 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var rows = res.resultSet;
 		    		var mera;
 			        for (var i in rows) {
-			        	console.log(rows[i].enota);
 			        	mera = rows[i].enota;
-			            results += "<tr><td>" + rows[i].time + "</td>" +"<td>"+ rows[i].Systolic +" ("+rows[i].enota+") </td><td class='text-right'>" + rows[i].Diastolic +" ("+rows[i].enota+") </td>";
+			            //results += "<tr><td>" + rows[i].time + "</td>" +"<td>"+ rows[i].Systolic +" ("+rows[i].enota+") </td><td class='text-right'>" + rows[i].Diastolic +" ("+rows[i].enota+") </td>";
 			            
 			            var index = rows[i].time.indexOf('.'); //spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
-			            //console.log(datum);
+			            results += "<tr><td>" + datum + "</td>" +"<td>"+ rows[i].Systolic +" ("+rows[i].enota+") </td><td class='text-right'>" + rows[i].Diastolic +" ("+rows[i].enota+") </td>";
+			            
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
 			            	sistolični : rows[i].Systolic,
@@ -183,7 +194,6 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			" contains COMPOSITION a"+
 			" contains OBSERVATION a_a[openEHR-EHR-OBSERVATION.body_weight.v1]"+
 			"order by time desc";
-		console.log(AQL);
 		$.ajax({
 		    url: baseUrl + "/query?" + $.param({"aql": AQL}),
 		    type: 'GET',
@@ -194,12 +204,11 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var rows = res.resultSet;
 		    		var mera;
 			        for (var i in rows) {
-			        	console.log(rows[i].Systolic);
-			        	results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_weight +" ("+rows[i].enota+ ") </td>";
+			        	//results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_weight +" ("+rows[i].enota+ ") </td>";
 			        	mera = rows[i].enota;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
-			            
+			            results += "<tr><td>" + datum + "</td>" + "<td class='text-right'>" + rows[i].Body_weight +" ("+rows[i].enota+ ") </td>";
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
 			            	teža : rows[i].Body_weight
@@ -292,6 +301,22 @@ function domov(){
 
 }
 
+
+function krvniTlak(){
+	izbranoOkno = "tlak";
+	podatki("tlak");
+}
+
+function visina(){
+	izbranoOkno = "visina";
+	podatki("visina");
+}
+
+function teza(){
+	izbranoOkno = "teza";
+	podatki("teza");
+}
+
 function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	//najprej poiscemo v katero kategorijo spadata tlaka in bmi
 	var indexS = 0; 
@@ -307,7 +332,6 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 			indexD = i;
 		}
 	}
-	console.log(bmi);
 	var indexB = 0; 
 	for(var i in blood_pressure.bmi){
 		if(bmi > blood_pressure.bmi[i].min && bmi <= blood_pressure.bmi[i].max){
@@ -335,7 +359,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 	fin = "<div class='well'><label class=' control-label'><i> Pacientov indeks telesne teže je: </i></label> "+ bmi +" ("+bmiUnit+")<div><b>Sklep:&#160<ins>"+blood_pressure.bmi[indexB].name+ "</ins></b></div></div>";
 	$("#izvid").append(fin);
 	
-	
+	//glede na krvni pritisk in index telesne mase na zadnjem merjenju, se potem poda diagnoza.
 	var sklep;
 	if(problemSTlakom >=3){
 		if(indexB > 2){
@@ -387,6 +411,7 @@ function pregledPacienta(systolic,diastolic,enotaTlaka,bmi,bmiUnit){
 
 
 function pregled(){
+	izbranoOkno="pregled";
 	$("#main").empty();
 	$("#main").append("<h2>Pregled zdravstenega stanja pacienta</h2>");
 	//preveri kaksni so zadnji vnosi
@@ -409,7 +434,6 @@ function pregled(){
 		" order by time desc"+
 		" limit 1";
 	
-	console.log(AQL);
 	$.ajax({
 	    url: baseUrl + "/query?" + $.param({"aql": AQL}),
 	    type: 'GET',
@@ -434,42 +458,6 @@ function pregled(){
 }
 
 
-function krvniTlak(){
-	izbranoOkno = "tlak";
-	podatki("tlak");
-}
-
-function visina(){
-	izbranoOkno = "visina";
-	podatki("visina");
-}
-
-function teza(){
-	izbranoOkno = "teza";
-	podatki("teza");
-}
-
-
-
-
-$(document).ready(function(){
-    domov();
-  	naloziJson();
-});
-
-function naloziJson(){
-  $.getJSON( "zunanjiPodatki.js", function( json ) {
-	console.log( "JSON Data: " + json.systolic[2].max);
-		blood_pressure = json;
-	});	
-}
-
-
-function narisiGraf(data){
-	$("#main").append("</div><span class='label label-info'>Graf</span></div><div class='row' id='graf'><div>");
-	$("#graf").html( new graph(data)); //new graph()  
-
-}
 
 
 //-----------------------------------------------------------------------------//
@@ -477,6 +465,7 @@ function narisiGraf(data){
 //-----------------------------------------------------------------------------//
 
 function generirajPaciente(){ //nalozimo zavihek za generiranje pacientov
+	izbranoOkno ="generator";
 	//najprej dodamo paciente 
 	$("#main").empty();
 	$("#main").append("<div class='row'><h4 class='text-center'>Če želite ponovno dodati podatke o pacientih v bazo, kliknite gumb <i>Generiraj</i>.</h4></div>");
@@ -540,11 +529,8 @@ function generate(i){
 	                    //$("#success").append("<span class='obvestilo label label-success fade-in'>Uspešno kreiran EHR '" + ehrId + "'.</span>");
 	                    console.log("Uspešno kreiran EHR '" + ehrId + "'.");
 	                    //$("#preberiEHRid").val(ehrId);
-	                    console.log(ime);
 	                    pacienti[i].ehrID = ehrId;
-	                    console.log("prej: "+patientIDs[i]);
 	                    patientIDs[i].ehrID = ehrId;
-	                    console.log("potem: "+patientIDs[i]);
 	                }
 	            },
 	            error: function(err) {
@@ -603,6 +589,15 @@ function dodajVitalneZnake(ehrID,data) {
 }
 //-------------------------------------------------------------------------------
 
+
+function narisiGraf(data){
+	$("#main").append("</div><span class='label label-info'>Graf</span></div><div class='row' id='graf'><div>");
+	$("#graf").html("");
+	$("#graf").html( new graph(data)); //new graph()  
+
+}
+
+
 var graph = function(data){
     var margin = {top: 30, right: 80, bottom: 30, left: 50},
 	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
@@ -638,11 +633,10 @@ var graph = function(data){
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
 	function n(error, data) {
-		  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
-		
-		  data.forEach(function(d) {
+		color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+		 data.forEach(function(d) {
 		 d.date = parseDate(d.date);
-		 console.log(d.date);
+			 
 	});
 	
 	  var cities = color.domain().map(function(name) {
@@ -696,38 +690,91 @@ var graph = function(data){
 	                         
 	n([],data);
 }
-/*
-function resize() { //NALOZI VECKRAT?????
 
+
+$(window).resize(function () {
+	if(izbranoOkno === "visina" || izbranoOkno === "teza" || izbranoOkno === "tlak"){ //ce se nahaja na zavihku kjer je graf, klicemo funkcijo, ki bo pocakala .5 sekunde in sele potem znova nalozila graf ->drugace 
+	//se vse skupaj nalozi veckrat,saj je funkcija navadno ob resizanju klicana veckrat
+	    waitForFinalEvent(function(){
+	      $("#main").empty();
+	      refresh();
+	    }, 500, "some unique string");
+	}
+});
+
+
+var waitForFinalEvent = (function () {
+  var timers = {};
+  return function (callback, ms, uniqueId) {
+    if (!uniqueId) {
+      uniqueId = "Don't call this twice without a uniqueId";
+    }
+    if (timers[uniqueId]) {
+      clearTimeout (timers[uniqueId]);
+    }
+    timers[uniqueId] = setTimeout(callback, ms);
+  };
+})();
+
+function refresh(){
 	if(izbranoOkno === "visina"){
-		$("#graf").html("");
 		$("#graf").remove();
 		visina();
-		
 	}
 	else if(izbranoOkno === "tlak"){
-		$("#graf").html("");
 		$("#graf").remove();
 		krvniTlak();
 	}
 	else if(izbranoOkno ==="teza"){
-		$("#graf").html("");
 		$("#graf").remove();
 		teza();
 	}
-}*/
+}
 
+
+
+
+
+//----------------teeest
+/*function mare(){
+ 	$("#main").append("<div id='player'></div>");
+}*/
+/*var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var player;
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: 'M7lc1UVf-VE?enablejsapi=1&playerapiid=ytplayer&version=3',
+        events: {
+            'onReady': onReady
+        }
+    });
+}
+
+function onReady() {
+    player.addEventListener('onStateChange', function(e) {
+        console.log('State is:', e.data);
+    });
+}
+*/
 
 
 //-----------------------------pacienti-------------------------------------------
-//var patientIDs = ["54c77109-775e-4f46-81c2-9cd32eb08f96","cad34540-40ae-4f39-ad96-56a4f9276126","a684c2d9-beef-43b4-9f4a-efeee8639238"];
+
 
 //------------------zacasni podatki:---------------------------------------------
 //ehrji--- na zacetku  pridobimo imena-nafilamo dropdown, na podlagi imen lahko potem iz dropdowna dostopamo do ehrjev
 var patientIDs = [
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"e9f1ce26-bfef-4229-ad18-8c1f75a40806"},
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"d6c639e7-21d6-447f-9928-9c3417d8d749"},
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"61a99c04-1741-4626-a2d8-8231ef5be676"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"3dd64865-5f48-4ad9-8378-d308b25ab090"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"fe1834a1-0a3a-42a6-8f93-e4992c1379a5"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"723d0804-4c3d-489f-bf14-e7c29ac1fd44"},
 ];
 
 //---------------------------trajni podatki:--------------
