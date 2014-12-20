@@ -735,37 +735,6 @@ function refresh(){
 
 
 
-//----------------teeest
-/*function mare(){
- 	$("#main").append("<div id='player'></div>");
-}*/
-/*var tag = document.createElement('script');
-
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-var player;
-
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: 'M7lc1UVf-VE?enablejsapi=1&playerapiid=ytplayer&version=3',
-        events: {
-            'onReady': onReady
-        }
-    });
-}
-
-function onReady() {
-    player.addEventListener('onStateChange', function(e) {
-        console.log('State is:', e.data);
-    });
-}
-*/
-
-
 //-----------------------------pacienti-------------------------------------------
 
 
