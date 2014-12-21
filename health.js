@@ -75,10 +75,10 @@ function zahtevajEHR(i){
 function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizvedbo na ehrscape --> nato se izrise graf in izpise tabela vseh podatkov
 	$("#main").empty();
 
-    var dataForGraph = [];
     sessionId =getSessionId();
    	var ehrID = ehrIzbranega;
     if(vrsta === "visina"){
+    	var dataForGraph = [];
     	$("#main").append("<h2>Podatki o višini</h2>");
     	var AQL = 
 			"select "+
@@ -94,25 +94,20 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    type: 'GET',
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
-		    	var results = "</div><span class='label label-info'>Tabela s podatki o višini</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Višina</th></tr>";
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var enota = "cm";
 			        for (var i = 0; i < rows.length; i++) {
-			           
 			            enota = rows[i].mera;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
-			            results += "<tr><td>" + datum + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
-
 			            dataForGraph.push({
-			            	date : (datum).toString(), 
-			            	višina : rows[i].Body_Height_Length
+			            	date : datum, 
+			            	close : rows[i].Body_Height_Length
 			            });
 			        }
-			        results += "</table>";
-			        narisiGraf(dataForGraph);
-			        $("#main").append(results);
+			        $("#main").append("<div class='well'><b>Graf prikazuje kako se je skozi leta spreminjala višina pacienta. Do natančnih vrednosti lahko dostopate tako, da se s kurzorjem pomikate po grafu. </b></div>");
+					narisiGraf(dataForGraph,(rows[0].mera).toString());
 			       
 		    	} else {
 		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
@@ -126,6 +121,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		});
     }
     else if(vrsta === "tlak"){
+    	var dataForGraph = [];
     	$("#main").append("<h2>Podatki o krvnem tlaku</h2>");
     	var AQL = 
 			"select "+
@@ -156,10 +152,12 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			            	sistolični : rows[i].Systolic,
 			            	diastolični : rows[i].Diastolic
 			            });
+			            
 
 			        }
 			        results += "</table>";
-			        narisiGraf(dataForGraph);
+			        $("#main").append("<div class='well'><b>Graf prikazuje kako sta se skozi leta spreminjala diastolični in sistolični krvni tlak pacienta. V tabeli pa so zapisane natančne vrednosti le teh. </b></div>");
+			        narisiGrafMulti(dataForGraph);
 			        $("#main").append(results);
 		    	} else {
 		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
@@ -173,6 +171,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		});
     }
     else if(vrsta === "teza"){
+    	var dataForGraph = [];
     	$("#main").append("<h2>Podatki o teži</h2>");
 	   	var AQL = 
 			"select "+
@@ -188,24 +187,20 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    type: 'GET',
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
-		    	var results = "</div><span class='label label-info'>Tabela s podatki o teži</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Teža</th></tr>";
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var mera;
 			        for (var i in rows) {
-			        	
 			        	mera = rows[i].enota;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
-			            results += "<tr><td>" + datum + "</td>" + "<td class='text-right'>" + rows[i].Body_weight +" ("+rows[i].enota+ ") </td>";
 			            dataForGraph.push({
-			            	date : (datum).toString(), 
-			            	teža : rows[i].Body_weight
-			            });			        	
+			            	date : datum, 
+			            	close : rows[i].Body_weight
+			            });
 			        }
-			        results += "</table>";
-			        narisiGraf(dataForGraph);
-			        $("#main").append(results);
+			        $("#main").append("<div class='well'><b>Graf prikazuje kako se je skozi leta spreminjala teža pacienta. Do natančnih vrednosti lahko dostopate tako, da se s kurzorjem pomikate po grafu. </b></div>");
+			        narisiGraf(dataForGraph,rows[0].enota);
 		    	} else {
 		    		$("#main").append("<h2><span class='obvestilo label label-warning fade-in'>Najprej izberite pacienta. (Domov > Izberi pacienta)</span></h2>");
 		    	}
@@ -485,23 +480,23 @@ function generirajPaciente(){ //nalozimo zavihek za generiranje pacientov
 
 function dodajVBazo(){ //se izvede v primeru da je bil kliknjen gumb Generiraj
 	//najprej dodamo paciente
-	for(var i in patientIDs){ //prej je bilo pacienti
+	for(var i in patientIDs){ 
 		generate(i);
 	}
 	$("#main").append("<div id='loading'><h4 class='text-center'><span class='label label-warning'>Nalagam vitalne znake...</span></h4></div>");
 	//nato dodamo vitalne znake
 	
 	for(var i in prvi){
-    	dodajVitalneZnake(patientIDs[0].ehrID,prvi[i]);//prej je bilo pacienti
+    	dodajVitalneZnake(patientIDs[0].ehrID,prvi[i]);
     }
     
   
     for(var i in drugi){
-		dodajVitalneZnake(patientIDs[1].ehrID,drugi[i]);//prej je bilo pacienti
+		dodajVitalneZnake(patientIDs[1].ehrID,drugi[i]);
     }
     
   	for(var i in tretji){
-		dodajVitalneZnake(patientIDs[2].ehrID,tretji[i]);//prej je bilo pacienti
+		dodajVitalneZnake(patientIDs[2].ehrID,tretji[i]);
     }
 	$("#loading").remove();
 	$("#main").append("<div class='row'><h4 class='text-center'><span class='label label-success'>Podatki uspesno dodani!</span></h4></div>");
@@ -594,20 +589,67 @@ function dodajVitalneZnake(ehrID,data) {
 }
 //-------------------------------------------------------------------------------
 
+$(window).resize(function () {
+	if(izbranoOkno === "visina" || izbranoOkno === "teza" || izbranoOkno === "tlak"){ //ce se nahaja na zavihku kjer je graf, klicemo funkcijo, ki bo pocakala .5 sekunde in sele potem znova nalozila graf ->drugace 
+	//se vse skupaj nalozi veckrat,saj je funkcija navadno ob resizanju klicana veckrat
+	    waitForFinalEvent(function(){
+	      $("#main").empty();
+	      refresh();
+	    }, 500, "ne nalozi veckrat");
+	}
 
-function narisiGraf(data){
+});
+
+
+var waitForFinalEvent = (function () {
+  var timers = {};
+  return function (callback, ms, uniqueId) {
+    if (!uniqueId) {
+      uniqueId = "Don't call this twice without a uniqueId";
+    }
+    if (timers[uniqueId]) {
+      clearTimeout (timers[uniqueId]);
+    }
+    timers[uniqueId] = setTimeout(callback, ms);
+  };
+})();
+
+function refresh(){
+	if(izbranoOkno === "visina"){
+		$("#graf").remove();
+		visina();
+	}
+	else if(izbranoOkno === "tlak"){
+		$("#graf").remove();
+		krvniTlak();
+	}
+	else if(izbranoOkno ==="teza"){
+		$("#graf").remove();
+		teza();
+	}
+}
+
+
+// --------------- grafi ------------------------------
+
+function narisiGraf(data,enota){ //za graf visine,teze
 	$("#main").append("</div><span class='label label-info'>Graf</span></div><div class='row' id='graf'><div>");
 	$("#graf").html("");
-	$("#graf").html( new graph(data)); //new graph()  
+	$("#graf").html( new graph2(data,enota));  
 
 }
 
+function narisiGrafMulti(data){ //za risanje grafa za krvni tlak
+	$("#main").append("</div><span class='label label-info'>Graf</span></div><div class='row' id='graf'><div>");
+	$("#graf").html("");
+	$("#graf").html( new graph(data)); 
+	
+}
 
 var graph = function(data){
     var margin = {top: 30, right: 80, bottom: 30, left: 50},
 	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
-	  	//height = 500 - margin.top - margin.bottom;
-	  	height = width * 2 / 3 - margin.top - margin.bottom ;
+	  	height = width * 3 / 5 - margin.top - margin.bottom ;
 
 	var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
 	
@@ -698,45 +740,104 @@ var graph = function(data){
 }
 
 
-$(window).resize(function () {
-	if(izbranoOkno === "visina" || izbranoOkno === "teza" || izbranoOkno === "tlak"){ //ce se nahaja na zavihku kjer je graf, klicemo funkcijo, ki bo pocakala .5 sekunde in sele potem znova nalozila graf ->drugace 
-	//se vse skupaj nalozi veckrat,saj je funkcija navadno ob resizanju klicana veckrat
-	    waitForFinalEvent(function(){
-	      $("#main").empty();
-	      refresh();
-	    }, 500, "ne nalozi veckrat");
-	}
+var graph2 = function (data,unit) {
+	var margin = {top: 20, right: 50, bottom: 30, left: 50},
+    	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
+	  	height = width * 3 / 5 - margin.top - margin.bottom ;
 
-});
-
-
-var waitForFinalEvent = (function () {
-  var timers = {};
-  return function (callback, ms, uniqueId) {
-    if (!uniqueId) {
-      uniqueId = "Don't call this twice without a uniqueId";
-    }
-    if (timers[uniqueId]) {
-      clearTimeout (timers[uniqueId]);
-    }
-    timers[uniqueId] = setTimeout(callback, ms);
-  };
-})();
-
-function refresh(){
-	if(izbranoOkno === "visina"){
-		$("#graf").remove();
-		visina();
+	var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
+	    bisectDate = d3.bisector(function(d) { return d.date; }).left,
+	    formatValue = d3.format(",.2f"),
+	    formatCurrency = function(d) { return  formatValue(d) +" "+ unit; };
+	
+	var x = d3.time.scale()
+	    .range([0, width]);
+	
+	var y = d3.scale.linear()
+	    .range([height, 0]);
+	
+	var xAxis = d3.svg.axis()
+	    .scale(x)
+	    .orient("bottom");
+	
+	var yAxis = d3.svg.axis()
+	    .scale(y)
+	    .orient("left");
+	
+	var line = d3.svg.line()
+	    .x(function(d) { return x(d.date); })
+	    .y(function(d) { return y(d.close); });
+	
+	var svg = d3.select("#main").append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	function n(error, data) {
+	  data.forEach(function(d) {
+	    d.date = parseDate(d.date);
+	    d.close = +d.close;
+	  });
+	
+	  data.sort(function(a, b) {
+	    return a.date - b.date;
+	  });
+	
+	  x.domain([data[0].date, data[data.length - 1].date]);
+	  y.domain(d3.extent(data, function(d) { return d.close; }));
+	
+	  svg.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+	
+	  svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	    .append("text")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+	      .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+	      .text(unit);
+	
+	  svg.append("path")
+	      .datum(data)
+	      .attr("class", "line")
+	      .attr("d", line);
+	
+	  var focus = svg.append("g")
+	      .attr("class", "focus")
+	      .style("display", "none");
+	
+	  focus.append("circle")
+	      .attr("r", 4.5);
+	
+	  focus.append("text")
+	      .attr("x", 9)
+	      .attr("dy", ".35em");
+	
+	  svg.append("rect")
+	      .attr("class", "overlay")
+	      .attr("width", width)
+	      .attr("height", height)
+	      .on("mouseover", function() { focus.style("display", null); })
+	      .on("mouseout", function() { focus.style("display", "none"); })
+	      .on("mousemove", mousemove);
+	
+	  function mousemove() {
+	    var x0 = x.invert(d3.mouse(this)[0]),
+	        i = bisectDate(data, x0, 1),
+	        d0 = data[i - 1],
+	        d1 = (data[i] === "undefined") ? d0 : data[i],
+	        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+	    focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+	    focus.select("text").text(formatCurrency(d.close));
+	  }
 	}
-	else if(izbranoOkno === "tlak"){
-		$("#graf").remove();
-		krvniTlak();
-	}
-	else if(izbranoOkno ==="teza"){
-		$("#graf").remove();
-		teza();
-	}
-}
+	n([],data);
+};
 
 
 
@@ -777,11 +878,11 @@ var prvi = [
 ];
 
 var drugi = [
-	{"ehrId":"", "datumInUra":"1980-11-30T10:30","telesnaVisina":"182","telesnaTeza":"89","telesnaTemperatura":"36","sistolicniKrvniTlak":"111","diastolicniKrvniTlak":"80","nasicenostKrviSKisikom":"95"},
+	{"ehrId":"", "datumInUra":"1980-11-30T10:30","telesnaVisina":"181","telesnaTeza":"89","telesnaTemperatura":"36","sistolicniKrvniTlak":"111","diastolicniKrvniTlak":"80","nasicenostKrviSKisikom":"95"},
 	{"ehrId":"", "datumInUra":"1990-11-30T10:30","telesnaVisina":"182","telesnaTeza":"90","telesnaTemperatura":"39.8","sistolicniKrvniTlak":"121","diastolicniKrvniTlak":"80","nasicenostKrviSKisikom":"95"},
 	{"ehrId":"", "datumInUra":"1999-11-30T10:30","telesnaVisina":"182","telesnaTeza":"100","telesnaTemperatura":"36","sistolicniKrvniTlak":"125","diastolicniKrvniTlak":"83","nasicenostKrviSKisikom":"95"},
 	{"ehrId":"", "datumInUra":"2000-11-30T10:30","telesnaVisina":"182","telesnaTeza":"107","telesnaTemperatura":"36.4","sistolicniKrvniTlak":"130","diastolicniKrvniTlak":"85","nasicenostKrviSKisikom":"93"},
-	{"ehrId":"", "datumInUra":"2001-01-30T10:30","telesnaVisina":"182","telesnaTeza":"111","telesnaTemperatura":"36","sistolicniKrvniTlak":"146","diastolicniKrvniTlak":"92","nasicenostKrviSKisikom":"89"},
+	{"ehrId":"", "datumInUra":"2001-01-30T10:30","telesnaVisina":"181","telesnaTeza":"111","telesnaTemperatura":"36","sistolicniKrvniTlak":"146","diastolicniKrvniTlak":"92","nasicenostKrviSKisikom":"89"},
 	{"ehrId":"", "datumInUra":"2001-11-30T10:30","telesnaVisina":"182","telesnaTeza":"112","telesnaTemperatura":"37","sistolicniKrvniTlak":"150","diastolicniKrvniTlak":"94","nasicenostKrviSKisikom":"91"},
 	{"ehrId":"", "datumInUra":"2002-11-30T10:30","telesnaVisina":"182","telesnaTeza":"120","telesnaTemperatura":"36","sistolicniKrvniTlak":"142","diastolicniKrvniTlak":"89","nasicenostKrviSKisikom":"92"},
 	{"ehrId":"", "datumInUra":"2003-11-30T10:30","telesnaVisina":"182","telesnaTeza":"105","telesnaTemperatura":"35.9","sistolicniKrvniTlak":"135","diastolicniKrvniTlak":"88","nasicenostKrviSKisikom":"96"},
