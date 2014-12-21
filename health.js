@@ -257,7 +257,7 @@ function napisiZeIzbranega(){ //ce je pacient ze izbran in kliknemo domov, se iz
 function domov(){
 	izbranoOkno = "domov";
 	$("#main").empty();
-	$("#main").append("<h2> Zdravstveni e-pomočnik poskrbi, da vašemu zdravju dobro se godi! <h2><br>");
+	$("#main").append("<h2> Vaše zdravje-naša skrb! <h2><br>");
 	$("#main").append("<h4> Izberite pacienta: <h4><br>" + "<select class='form-control' id='izbiraPacientov'><option>-</option></select><br>");
 	napolniPaciente();
 	if(ehrIzbranega !== 0){
