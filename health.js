@@ -100,22 +100,23 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
 		    	var results = "</div><span class='label label-info'>Tabela s podatki o višini</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Višina</th></tr>";
+		    	
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var enota = "cm";
-			        for (var i in rows) {
-			            //results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
-			            
+			        for (var i = 0; i < rows.length; i++) {
+			           
 			            enota = rows[i].mera;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
 			            results += "<tr><td>" + datum + "</td>" + "<td class='text-right'>" + rows[i].Body_Height_Length + " ("+rows[i].mera+") </td>";
-			            
+
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
 			            	višina : rows[i].Body_Height_Length
 			            });
 			        }
+			        
 			        results += "</table>";
 			        
 			        narisiGraf(dataForGraph);
@@ -155,7 +156,6 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var mera;
 			        for (var i in rows) {
 			        	mera = rows[i].enota;
-			            //results += "<tr><td>" + rows[i].time + "</td>" +"<td>"+ rows[i].Systolic +" ("+rows[i].enota+") </td><td class='text-right'>" + rows[i].Diastolic +" ("+rows[i].enota+") </td>";
 			            
 			            var index = rows[i].time.indexOf('.'); //spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
@@ -204,7 +204,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var rows = res.resultSet;
 		    		var mera;
 			        for (var i in rows) {
-			        	//results += "<tr><td>" + rows[i].time + "</td>" + "<td class='text-right'>" + rows[i].Body_weight +" ("+rows[i].enota+ ") </td>";
+			        	
 			        	mera = rows[i].enota;
 			            var index = rows[i].time.indexOf('.');//spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
@@ -718,7 +718,7 @@ $(window).resize(function () {
 	    waitForFinalEvent(function(){
 	      $("#main").empty();
 	      refresh();
-	    }, 500, "some unique string");
+	    }, 500, "ne nalozi veckrat");
 	}
 
 });
@@ -760,9 +760,9 @@ function refresh(){
 //------------------zacasni podatki:---------------------------------------------
 //ehrji--- na zacetku  pridobimo imena-nafilamo dropdown, na podlagi imen lahko potem iz dropdowna dostopamo do ehrjev
 var patientIDs = [
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"3dd64865-5f48-4ad9-8378-d308b25ab090"},
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"fe1834a1-0a3a-42a6-8f93-e4992c1379a5"},
-	{"firstName":"","lastName":"","birthDate":"","ehrID":"723d0804-4c3d-489f-bf14-e7c29ac1fd44"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"2093d308-1b65-43b9-b9ca-f49f9739bb0f"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"415dc80f-f4f7-4e09-af15-4f0ca91d3441"},
+	{"firstName":"","lastName":"","birthDate":"","ehrID":"fbd0cd85-b3aa-43db-8516-e37c0096041d"},
 ];
 
 //---------------------------trajni podatki:--------------
