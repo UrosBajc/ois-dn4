@@ -52,29 +52,24 @@ function zahtevajEHR(i){
 	var id = patientIDs[i].ehrID;
 	console.log("zahteva:"+id);
 	sessionId = getSessionId();
-
-	if (!id || id.trim().length == 0) {
-		$("#main").html("<span class='obvestilo label label-warning fade-in'>Prosim vnesite zahtevan podatek!"); //tole odstrani
-	} else {
-		$.ajax({
-			url: baseUrl + "/demographics/ehr/" + id + "/party",
-			type: 'GET',
-			headers: {"Ehr-Session": sessionId},
-	    	success: function (data) {
-				var party = data.party;
-				//$("#preberiSporocilo").html("<span class='obvestilo label label-success fade-in'>Bolnik '" + party.firstNames + " " + party.lastNames + "', ki se je rodil '" + party.dateOfBirth + "'.</span>");
-				$('#izbiraPacientov').append("<option>"+party.firstNames + ' ' + party.lastNames +"</option>");    
-				console.log("Bolnik '" + party.firstNames + " " + party.lastNames + "', ki se je rodil '" + party.dateOfBirth + "'."+id);
-				patientIDs[i].firstName = party.firstNames;
-				patientIDs[i].lastName = party.lastNames;
-				patientIDs[i].birthDate = party.dateOfBirth;
-			},
-			error: function(err) {
-				$("#main").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
-				console.log(JSON.parse(err.responseText).userMessage);
-			}
-		});
-	}	
+	$.ajax({
+		url: baseUrl + "/demographics/ehr/" + id + "/party",
+		type: 'GET',
+		headers: {"Ehr-Session": sessionId},
+    	success: function (data) {
+			var party = data.party;
+			$('#izbiraPacientov').append("<option>"+party.firstNames + ' ' + party.lastNames +"</option>");    
+			console.log("Bolnik '" + party.firstNames + " " + party.lastNames + "', ki se je rodil '" + party.dateOfBirth + "'."+id);
+			patientIDs[i].firstName = party.firstNames;
+			patientIDs[i].lastName = party.lastNames;
+			patientIDs[i].birthDate = party.dateOfBirth;
+		},
+		error: function(err) {
+			$("#main").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
+			console.log(JSON.parse(err.responseText).userMessage);
+		}
+	});
+	
 }
 
 function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizvedbo na ehrscape --> nato se izrise graf in izpise tabela vseh podatkov
@@ -100,7 +95,6 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    headers: {"Ehr-Session": sessionId},
 		    success: function (res) {
 		    	var results = "</div><span class='label label-info'>Tabela s podatki o višini</span></div><table class='table  table-striped  table-hover table-bordered'><tr><th>Datum in ura</th><th class='text-right'>Višina</th></tr>";
-		    	
 		    	if (res) {
 		    		var rows = res.resultSet;
 		    		var enota = "cm";
@@ -116,9 +110,7 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 			            	višina : rows[i].Body_Height_Length
 			            });
 			        }
-			        
 			        results += "</table>";
-			        
 			        narisiGraf(dataForGraph);
 			        $("#main").append(results);
 			       
@@ -156,18 +148,15 @@ function podatki(vrsta) { //dobimo vrnjene podatke za katere smo poslali poizved
 		    		var mera;
 			        for (var i in rows) {
 			        	mera = rows[i].enota;
-			            
 			            var index = rows[i].time.indexOf('.'); //spreminjanje oblike datuma
 			            var datum = rows[i].time.substring(0,index-3);//brez milisec
 			            results += "<tr><td>" + datum + "</td>" +"<td>"+ rows[i].Systolic +" ("+rows[i].enota+") </td><td class='text-right'>" + rows[i].Diastolic +" ("+rows[i].enota+") </td>";
-			            
 			            dataForGraph.push({
 			            	date : (datum).toString(), 
 			            	sistolični : rows[i].Systolic,
 			            	diastolični : rows[i].Diastolic
 			            });
-			            
-			            
+
 			        }
 			        results += "</table>";
 			        narisiGraf(dataForGraph);
@@ -549,7 +538,6 @@ function generate(i){
 	                if (party.action == 'CREATE') {
 	                	$("#main").append("<div class='row'><h4 class='text-center'><span class='label label-success'>Uspešno kreiran EHR: " + ehrId + "</span></h4></div>");
 	                    console.log("Uspešno kreiran EHR '" + ehrId + "'.");
-	                    pacienti[i].ehrID = ehrId;
 	                    patientIDs[i].ehrID = ehrId;
 	                }
 	            },
@@ -564,11 +552,9 @@ function generate(i){
 
 
 function dodajVitalneZnake(ehrID,data) {
-
 	sessionId = getSessionId();
 	//arhetipi:  (za zdruzevanje arhetipov naredimo template, predlogo --> mi naredimo predlogo vitalni znaki)
 	var bmi = (data.telesnaTeza/(data.telesnaVisina*data.telesnaVisina/10000));
-	console.log(bmi);
 		$.ajaxSetup({
 		    headers: {"Ehr-Session": sessionId}
 		});
@@ -621,7 +607,7 @@ var graph = function(data){
     var margin = {top: 30, right: 80, bottom: 30, left: 50},
 	   width = parseInt(d3.select('#graf').style('width'), 10) - margin.left - margin.right,
 	  	//height = 500 - margin.top - margin.bottom;
-	  	height = width * 2 / 3;
+	  	height = width * 2 / 3 - margin.top - margin.bottom ;
 
 	var parseDate = d3.time.format("%Y-%m-%dT%H:%M").parse;
 	
